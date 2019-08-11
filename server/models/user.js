@@ -32,8 +32,13 @@ class Users extends Model {
     if (options['username']) {
       otherOptions['username'] = options['username'];
     }
-    //console.log('otherOptions', otherOptions)
-    return super.get.call(this, otherOptions);
+    if (options['password']) {
+      otherOptions['password'] = options['password'];
+    }
+    // var parseString = { `${Object.keys(otherOptions)[0]}` : otherOptions[Object.keys(otherOptions)[0]]}
+    var parseString = {}
+    parseString[Object.keys(otherOptions)[0]] = otherOptions[Object.keys(otherOptions)[0]];
+    return super.get.call(this, parseString);
   }
 
   /**

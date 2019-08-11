@@ -4,7 +4,7 @@ const parseCookies = (req, res, next) => {
   // req.cookies = parsed;
   var obj = {};
   //console.log('headers', req.headers)
-  if (!Object.keys(req.headers).length) {
+  if (!Object.keys(req.headers).length || !req.headers.cookie) {
     req.cookies = obj;
     next();
   } else {
@@ -13,7 +13,6 @@ const parseCookies = (req, res, next) => {
       obj[array[i].slice(0, array[i].indexOf('=')).trim()] = array[i].slice(array[i].indexOf('=') + 1);
     }
     req.cookies = obj;
-    //console.log('cookies', req.cookies)
     next();
   }
 };

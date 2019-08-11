@@ -16,28 +16,25 @@ app.use(partials());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
-app.use((req, res, next) => {
-  if (req.headers.Cookie) {
-    // if logged in already
-    cookieParser(req, res, next);
-    if (req.url === '/login' || req.url === '/signup') {
-      res.redirect('/index');
-    }
-  } else if (req.url !== '/login' && req.url !== '/signup') {
-    // not logged in
-    res.redirect('/login');
-  }
-  next();
-  //else {
-  //   res.render('login');
-  // }
-});
+app.use(cookieParser
+//   (req, res, next) => {
+//   //console.log('req.headers', req.headers)
+//   if (req.headers.Cookie) {
+//     // if logged in already
+//     cookieParser(req, res, next);
+//   } else if (req.url !== '/login' && req.url !== '/signup') {
+//     // not logged in
+//     res.redirect('/login');
+//   }
+//   next();
+// }
+);
+
+app.use(createSession.createSession);
+
+
 
 // Session middleware for first time login
-// app.use((req, res, next) => {
-//   createSession(req, res, next);
-//   next();
-// })
 
 
 
@@ -103,6 +100,7 @@ app.post('/links',
 /************************************************************/
 
 app.post('/login', (req, res, next) => {
+  console.log('103', req.body)
   models.Users.get(req.body)
     .then((result)=>{
       if (result) {
@@ -118,15 +116,27 @@ app.post('/login', (req, res, next) => {
 });
 
 app.post('/signup', (req, res, next) => {
+  //console.log('req.body', req)
   // console.log('reqheaders', req.headers)
-  models.Users.get(req.body)
-    .then((result) => {
-      if (result) {
-        res.redirect('/signup');
-      } else {
-        models.Users.create(req.body);
-        res.redirect('/');
-      }
+  //console.log('req', req, 'res', res);
+  // models.Users.get(req.body)
+  //   .then((result) => {
+  //     console.log('result', result)
+  //     if (result) {
+  //       res.redirect('/signup');
+  //     } else {
+  //       models.Users.create(req.body);
+  //       res.setHeader('location', '/')
+  //       console.log('res.headers', res.headers)
+  //       res.redirect('/');
+  //     }
+  //   })
+  return models.Users.create(req.body)
+    .then(() => {
+      res.redirect('/');
+    })
+    .catch((err) => {
+      res.redirect('/signup');
     });
   //   console.log('consolelog', models.Users.get(req.body)[0])
   //   res.render('signup');
@@ -138,10 +148,16 @@ app.post('/signup', (req, res, next) => {
 
 app.get('/login',
   (req, res) => {
-    res.render('login');
+    if (req.headers.Cookie){
+      res.redirect('/index');
+    }
+    res.render('login')
   });
 app.get('/signup',
   (req, res) => {
+    if (req.headers.Cookie){
+      res.redirect('/index')
+    }
     res.render('signup');
   });
 
